@@ -12,13 +12,11 @@
             <h1>Liberty Cars</h1>
         </div>
         <div class="pad"></div>
-
         <div class="selection">
             <div class="instructions">
                 <p>Enter search parameters below.</p>
             </div>
             <br>
-
             <div class="parameters">
                 <table align="center">
                     <tr>
@@ -44,7 +42,7 @@
                         <th><input class="arg" v-model="maxMiles"></th>
                     </tr>
                     <tr>
-                        <th colspan="4"><button>search</button></th>
+                        <th colspan="4"><button v-on:click="updateParameters()">search</button></th>
                     </tr>
                 </table>
             </div>
@@ -54,25 +52,54 @@
 </template>
 
 <script>
+    import executeSearch from '../main.js'
+
+    /* eslint-disable no-console */
+
     export default {
         name: 'ModelSelector',
-        props: ['model', 'minYear', 'maxYear', 'minPrice', 'maxPrice', 'minMiles', 'maxMiles'],
+        data: function() {
+            return {
+                parameters: Array,
+                model: '',
+                minYear: '',
+                maxYear: '',
+                minPrice: '',
+                maxPrice: '',
+                minMiles: '',
+                maxMiles: ''
+            }
+        },
         filters: {
             title: function (str) {
                 return str[0].toUpperCase() + str.substr(1);
             }
+        },
+        methods: {
+            updateParameters: function() {
+                this.parameters = {
+                    model: this.model,
+                    minYear: this.minYear,
+                    maxYear: this.maxYear,
+                    minPrice: this.minPrice,
+                    maxPrice: this.maxPrice,
+                    minMiles: this.minMiles,
+                    maxMiles: this.maxMiles
+                };
+               executeSearch(this.parameters);
+               this.$parent.showSelector = false;
+            }
         }
-
     }
 </script>
 
 <style scoped>
     h3, h1 {
-        margin: 0px;
+        margin: 0;
         font-size: 40px;
         font-weight: 900;
         color: white;
-        font-family: 'Avenir';
+        font-family: 'Avenir', sans-serif;
         padding-right: 15px;
         padding-left: 15px;
     }
@@ -83,8 +110,9 @@
         font-size: 20px;
         padding-top: 10px;
         padding-bottom: 10px;
+        padding-left: 5px;
         font-weight: 700;
-        font-family: 'Avenir';
+        font-family: 'Avenir', sans-serif;
         width: 350px;
         border-radius: 5px;
         border-width: 3px;
@@ -97,7 +125,7 @@
         font-size: 20px;
         padding: 10px;
         font-weight: 700;
-        font-family: 'Avenir';
+        font-family: 'Avenir', sans-serif;
         width: 358px;
         border-radius: 5px;
         border-width: 3px;
@@ -148,10 +176,10 @@
     }
 
     .parameters {
-        margin-left: -10%;
+        margin-left: 0%;
     }
 
     .selection {
-        margin-top: 15%;
+        margin-top: 10%;
     }
 </style>
