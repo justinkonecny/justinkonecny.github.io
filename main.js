@@ -2,13 +2,13 @@ import Vue from 'vue'
 import App from './App.vue'
 
 /* eslint-disable no-console */
-let listAds = [];
 
 Vue.config.productionTip = false;
-new Vue({
+let vue = new Vue({
     data: function() {
         return {
-            advertisementList: listAds
+            advertisementList: [],
+            pageState: 0
         }
     },
     render: ren => ren(App),
@@ -42,15 +42,12 @@ function parseResponse(strHTML) {
             advertisement['location'] = location;
             advertisement['link'] = link;
             advertisement['date'] = date;
+            advertisement['display'] = false;
             //advertisement['image'] = image;
 
-            listAds.push(advertisement);
+            vue.advertisementList.push(advertisement);
 
             count_valid += 1;
-
-            if (count_valid === 10) {
-                break;
-            }
         }
 
         count_total += 1;
@@ -60,7 +57,8 @@ function parseResponse(strHTML) {
     console.log('[Total Listings Found]: ' + count_total);
     console.log('[Valid Listings Found]: ' + count_valid);
     console.log('=====================================');
-    console.log(listAds);
+    console.log(vue.advertisementList);
+    vue.pageState = 2;
 }
 
 function getUrls(parameters) {
@@ -113,6 +111,7 @@ let HttpClient = function() {
 };
 
 export default function executeSearch(parameters) {
+    vue.pageState = 1;
     let urls = getUrls(parameters);
     let client = new HttpClient();
     client.get(urls.nnj, function(response) {

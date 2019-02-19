@@ -2,8 +2,11 @@
     <div class="results">
         <h2>Some Results.</h2><br>
         <ul class="list" v-for="ad in adList" :key="ad.id">
-            <button>show</button>
-            {{ ad['title'].toLowerCase() }}
+            <button v-on:click="displayAd(ad)">show</button>
+            <a v-bind:href="ad['link']">{{ ad['title'].toLowerCase() }}</a>
+            <div v-if="ad['display']">
+                <p>({{ ad['location'] }})</p>
+            </div>
         </ul>
     </div>
 </template>
@@ -16,6 +19,11 @@
         data: function() {
             return {
                 adList: this.$parent.adList
+            }
+        },
+        methods: {
+            displayAd: function(ad) {
+                ad['display'] = !ad['display'];
             }
         }
     }
@@ -30,10 +38,16 @@
         font-family: 'Avenir', sans-serif;
     }
 
-    p {
+    p,a  {
         color: white;
         font-size: 18px;
         font-weight: 700;
+        text-decoration: none;
+    }
+
+    a:hover {
+        font-weight: 900;
+        text-decoration-line: underline;
     }
 
     ul {

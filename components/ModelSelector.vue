@@ -17,8 +17,8 @@
                 <p>Enter search parameters below.</p>
             </div>
             <br>
-            <div class="parameters">
-                <table align="center">
+            <div>
+                <table class="parameters">
                     <tr>
                         <th colspan="0"><p>model:</p></th>
                         <th colspan="3"><input v-model="model"></th>
@@ -86,8 +86,7 @@
                     minMiles: this.minMiles,
                     maxMiles: this.maxMiles
                 };
-               executeSearch(this.parameters);
-               this.$parent.showSelector = false;
+                executeSearch(this.parameters);
             }
         }
     }
@@ -167,6 +166,7 @@
 
     .model-selector {
         background-color: var(--background);
+        min-width: 500px;
     }
 
     .arg {
@@ -176,10 +176,10 @@
     }
 
     .parameters {
-        margin-left: 0%;
+        margin-left: calc(50% - 290px);
     }
 
     .selection {
-        margin-top: 10%;
+        margin-top: 150px;
     }
 </style>

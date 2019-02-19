@@ -1,8 +1,9 @@
 <template>
     <body>
     <div id="app">
-        <ModelSelector v-if="showSelector"/>
-        <Results v-else adList="adList"/>
+        <ModelSelector v-if="this.$parent.pageState === 0"/>
+        <LoadScreen v-if="this.$parent.pageState === 1"/>
+        <Results v-if="this.$parent.pageState === 2" adList="adList"/>
     </div>
     </body>
 </template>
@@ -10,18 +11,19 @@
 <script>
     import ModelSelector from './components/ModelSelector.vue'
     import Results from './components/Results.vue'
+    import LoadScreen from './components/LoadScreen.vue'
 
     export default {
         name: 'app',
         data: function() {
             return {
-                adList: this.$parent.advertisementList,
-                showSelector: true
+                adList: this.$parent.advertisementList
             }
         },
         components: {
             ModelSelector,
-            Results
+            Results,
+            LoadScreen
         }
     }
 </script>
