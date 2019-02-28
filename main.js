@@ -2,22 +2,20 @@ import Vue from 'vue'
 import App from './App.vue'
 
 /* eslint-disable no-console */
+let adList = [];
 
 Vue.config.productionTip = false;
 let vue = new Vue({
     data: function() {
         return {
-            advertisementList: [],
-            pageState: 0
+            advertisementList: adList,
+            imageCount: 0
         }
     },
     render: ren => ren(App),
 }).$mount('#app'); //el: '#app'
 
-function parseResponse(strHTML) {
-    let doc = document.createElement('html');
-    doc.innerHTML = strHTML;
-
+function parseResponse(doc) {
     let rowsHTML = doc.getElementsByClassName('rows');
     let liHTML = rowsHTML.item(0).getElementsByClassName('result-row');
 
@@ -30,24 +28,31 @@ function parseResponse(strHTML) {
         let advertisement = {};
 
         let par = ad_html.getElementsByTagName('p').item(0);
-        let title = par.getElementsByClassName('result-title').item(0).innerText;
-        let datetime = ad_html.getElementsByTagName('time').item(0).getAttribute('datetime');
-        let date = datetime.split(' ')[0].split('-');
         let link = par.getElementsByTagName('a').item(0).getAttribute('href');
         let location = link.split('.')[0].split('//')[1];
         //let image = ad_html.getElementsByTagName("img");
 
         if (location !== 'newyork' && location !== 'philadelphia') {
+            let title = par.getElementsByClassName('result-title').item(0).innerText;
+            let datetime = ad_html.getElementsByTagName('time').item(0).getAttribute('datetime');
+            let date = datetime.split(' ')[0].split('-');
+
             advertisement['title'] = title;
             advertisement['location'] = location;
             advertisement['link'] = link;
             advertisement['date'] = date;
             advertisement['display'] = false;
-            //advertisement['image'] = image;
+            advertisement['image'] = "";
 
-            vue.advertisementList.push(advertisement);
+            adList.push(advertisement);
+            getAndProcessPage(('https://cors.io/?' + link), setImage, count_valid);
+
 
             count_valid += 1;
+
+            if (count_valid >= 10) {
+                return;
+            }
         }
 
         count_total += 1;
@@ -56,9 +61,22 @@ function parseResponse(strHTML) {
     /// print counts to the console
     console.log('[Total Listings Found]: ' + count_total);
     console.log('[Valid Listings Found]: ' + count_valid);
-    console.log('=====================================');
-    console.log(vue.advertisementList);
-    vue.pageState = 2;
+}
+
+function setImage(response, i) {
+    let ad = adList[i];
+    let imageList = response.getElementsByTagName('img');
+    if (imageList.length > 0) {
+        let image = imageList.item(0).getAttribute('src');
+        ad['image'] = image;
+        vue.imageCount++;
+    } else {
+        ad['image'] = "none";
+    }
+}
+
+export function populateImage(ad) {
+    getAndProcessPage(('https://cors.io/?' + ad['link']), setImage, ad);
 }
 
 function getUrls(parameters) {
@@ -96,25 +114,29 @@ function getUrls(parameters) {
     return urls;
 }
 
-let HttpClient = function() {
-    this.get = function(aUrl, aCallback) {
-        let anHttpRequest = new XMLHttpRequest();
-        anHttpRequest.onreadystatechange = function() {
-            if (anHttpRequest.readyState === 4 && anHttpRequest.status === 200) {
-                aCallback(anHttpRequest.responseText);
+function getAndProcessPage(url, callback, par) {
+    let anHttpRequest = new XMLHttpRequest();
+    anHttpRequest.onreadystatechange = function() {
+        if (anHttpRequest.readyState === 4 && anHttpRequest.status === 200) {
+            let response = document.createElement('html');
+            response.innerHTML = anHttpRequest.responseText;
+            if (callback != null) {
+                if (par != null) {
+                    callback(response, par);
+                } else {
+                    callback(response);
+                }
             }
-        };
+        }
+    };
 
-        anHttpRequest.open('GET', aUrl, true);
-        anHttpRequest.send(null);
-    }
-};
-
-export default function executeSearch(parameters) {
-    vue.pageState = 1;
-    let urls = getUrls(parameters);
-    let client = new HttpClient();
-    client.get(urls.nnj, function(response) {
-        parseResponse(response);
-    });
+    anHttpRequest.open('GET', url, true);
+    anHttpRequest.send(null);
 }
+
+export function executeSearch(parameters) {
+    let urls = getUrls(parameters);
+    getAndProcessPage(urls.nnj, parseResponse, null);
+}
+
+export default {executeSearch, populateImage}

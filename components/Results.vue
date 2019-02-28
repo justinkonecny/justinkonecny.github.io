@@ -1,25 +1,27 @@
 <template>
-    <div class="results">
+    <div v-cloak class="results">
         <h2>Some Results.</h2><br>
-        <ul class="list" v-for="ad in adList" :key="ad.id">
-            <button v-on:click="displayAd(ad)">show</button>
-            <a v-bind:href="ad['link']">{{ ad['title'].toLowerCase() }}</a>
-            <div v-if="ad['display']">
-                <p>({{ ad['location'] }})</p>
-            </div>
+        <ul v-for="ad in toDisplay" :key="ad.id">
+            <table class="inside">
+                <tr>
+                    <th><img :src="ad['image']" alt="Image" width="100px"></th>
+                    <th><button v-on:click="displayAd(ad)">show</button></th>
+                </tr>
+                <tr>
+
+                </tr>
+            </table>
         </ul>
     </div>
 </template>
 
 <script>
-
     /* eslint-disable no-console */
     export default {
         name: 'Results',
-        data: function() {
-            return {
-                adList: this.$parent.adList
-            }
+        props: {
+            toDisplay: Array,
+            pageStatus: Number
         },
         methods: {
             displayAd: function(ad) {
@@ -51,8 +53,12 @@
     }
 
     ul {
-        margin-left: 20%;
-        margin-right: 20%;
+        /** margin-right: 20%;
+        margin-left: 20%; **/
+        margin: 2%;
+        display: inline-grid;
+        width: 200px;
+        min-height: 300px;
         border-radius: 5px;
         padding: 18px;
         color: white;
@@ -68,11 +74,28 @@
         font-size: 15px;
         font-weight: 700;
         font-family: 'Avenir', sans-serif;
-        width: 70px;
+        width: 50px;
+        height: 30px;
         border-radius: 5px;
         border-width: 3px;
         border-color: #C7DCEA;
-        margin-right: 10px;
+        margin: 0;
+        padding: 0;
+        text-align: center;
+    }
+
+
+    img {
+        margin: 0;
+        padding: 0;
+    }
+
+    .inside {
+
+        display: table;
+        text-align: left;
+        margin: 0;
+        padding: 0;
     }
 
     .results {

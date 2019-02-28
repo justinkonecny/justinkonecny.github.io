@@ -52,7 +52,7 @@
 </template>
 
 <script>
-    import executeSearch from '../main.js'
+    import {executeSearch} from '../main.js'
 
     /* eslint-disable no-console */
 
@@ -86,6 +86,7 @@
                     minMiles: this.minMiles,
                     maxMiles: this.maxMiles
                 };
+                this.$emit('loadStart');
                 executeSearch(this.parameters);
             }
         }

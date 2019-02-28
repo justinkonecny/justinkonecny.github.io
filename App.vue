@@ -1,23 +1,24 @@
 <template>
     <body>
     <div id="app">
-        <ModelSelector v-if="this.$parent.pageState === 0"/>
-        <LoadScreen v-if="this.$parent.pageState === 1"/>
-        <Results v-if="this.$parent.pageState === 2" adList="adList"/>
+        <ModelSelector v-on:loadStart="pageState = 2" v-if="pageState === 0"/>
+        <Results v-else-if="pageState === 1" :toDisplay="adList.slice(0, 10)" />
+        <LoadScreen v-on:loadDone="pageState = 1" v-else :imageCount="this.$parent.imageCount"/>
     </div>
     </body>
 </template>
 
 <script>
     import ModelSelector from './components/ModelSelector.vue'
-    import Results from './components/Results.vue'
     import LoadScreen from './components/LoadScreen.vue'
+    import Results from './components/Results.vue'
 
     export default {
         name: 'app',
         data: function() {
             return {
-                adList: this.$parent.advertisementList
+                adList: this.$parent.advertisementList,
+                pageState: 0
             }
         },
         components: {
