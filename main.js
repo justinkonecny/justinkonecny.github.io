@@ -1,11 +1,18 @@
 import Vue from 'vue'
 import App from './App.vue'
+import BootstrapVue from 'bootstrap-vue'
+
+Vue.use(BootstrapVue)
+
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 /* eslint-disable no-console */
 let adList = [];
 
 Vue.config.productionTip = false;
 let vue = new Vue({
+    modules: ['bootstrap-vue/nuxt'],
     data: function() {
         return {
             advertisementList: adList,
@@ -30,28 +37,30 @@ function parseResponse(doc) {
         let par = ad_html.getElementsByTagName('p').item(0);
         let link = par.getElementsByTagName('a').item(0).getAttribute('href');
         let location = link.split('.')[0].split('//')[1];
-        //let image = ad_html.getElementsByTagName("img");
 
         if (location !== 'newyork' && location !== 'philadelphia') {
             let title = par.getElementsByClassName('result-title').item(0).innerText;
             let datetime = ad_html.getElementsByTagName('time').item(0).getAttribute('datetime');
             let date = datetime.split(' ')[0].split('-');
+            let price = ad_html.getElementsByClassName("result-price").item(0).innerText;
 
             advertisement['title'] = title;
             advertisement['location'] = location;
             advertisement['link'] = link;
             advertisement['date'] = date;
             advertisement['display'] = false;
+            advertisement['price'] = price;
+            advertisement['body'] = false;
             advertisement['image'] = "";
 
             adList.push(advertisement);
-            getAndProcessPage(('https://cors.io/?' + link), setImage, count_valid);
+            getAndProcessPage(('https://cors.io/?' + link), setImageAndInfo, count_valid);
 
 
             count_valid += 1;
 
             if (count_valid >= 10) {
-                return;
+                //return;
             }
         }
 
@@ -63,7 +72,7 @@ function parseResponse(doc) {
     console.log('[Valid Listings Found]: ' + count_valid);
 }
 
-function setImage(response, i) {
+function setImageAndInfo(response, i) {
     let ad = adList[i];
     let imageList = response.getElementsByTagName('img');
     if (imageList.length > 0) {
@@ -73,10 +82,11 @@ function setImage(response, i) {
     } else {
         ad['image'] = "none";
     }
-}
 
-export function populateImage(ad) {
-    getAndProcessPage(('https://cors.io/?' + ad['link']), setImage, ad);
+    let userbody = response.getElementsByClassName('userbody')[0];
+    let body = userbody.getElementsByTagName('section')[0];
+
+    ad['body'] = body.innerText.substring(48);
 }
 
 function getUrls(parameters) {
@@ -90,12 +100,12 @@ function getUrls(parameters) {
     let maxMiles = parameters.maxMiles;*/
 
     let model = 'bmw';
-    let minYear = '2000';
+    let minYear = '2008';
     //var maxYear = parameters.maxYear;
     let minPrice = '5000';
-    let maxPrice = '9500';
+    let maxPrice = '13000';
     let minMiles = '40000';
-    let maxMiles = '90000';
+    let maxMiles = '80000';
 
     let corsPrefix = 'https://cors.io/?';
 
@@ -139,4 +149,4 @@ export function executeSearch(parameters) {
     getAndProcessPage(urls.nnj, parseResponse, null);
 }
 
-export default {executeSearch, populateImage}
+export default { executeSearch }
