@@ -12,30 +12,18 @@
             <h1 class="header">Liberty Cars</h1>
         </div>
         <div class="content">
-            <ModelSelector v-on:loadStart="pageState = 2" v-if="pageState === 0"/>
-            <Results v-else-if="pageState === 1" :toDisplay="adList.slice(0, 15)" />
-            <LoadScreen v-on:loadDone="pageState = 1" v-else :imageCount="this.$parent.imageCount"/>
+            <ModelSelector />
         </div>
     </div>
 </template>
 
 <script>
     import ModelSelector from './components/ModelSelector.vue'
-    import LoadScreen from './components/LoadScreen.vue'
-    import Results from './components/Results.vue'
 
     export default {
         name: 'app',
-        data: function() {
-            return {
-                adList: this.$parent.advertisementList,
-                pageState: 0
-            }
-        },
         components: {
-            ModelSelector,
-            Results,
-            LoadScreen
+            ModelSelector
         }
     }
 </script>
