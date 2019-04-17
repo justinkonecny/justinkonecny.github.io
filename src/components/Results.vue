@@ -84,8 +84,16 @@
                 }
             },
             splitLocation: function(str) {
-                if (str === 'newjersey') {
+                if (str === "newjersey") {
                     return "New Jersey";
+                } else if (str === "cnj") {
+                    return "Central New Jersey";
+                } else if (str === "jerseyshore") {
+                    return "Jersey Shore";
+                } else if (str === "southjersey") {
+                    return "South Jersey";
+                } else if (str === "delaware") {
+                    return "Delaware";
                 } else {
                     return str;
                 }
@@ -108,9 +116,9 @@
 
 <style scoped>
     h2 {
-        padding: 50px 0 0 0;
+        padding: 30px 0 0 0;
         margin: 0;
-        font-size: 35px;
+        font-size: 20px;
         font-weight: 800;
         color: var(--text-dark);
     }

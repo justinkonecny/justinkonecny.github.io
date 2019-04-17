@@ -16,7 +16,7 @@
                             <b-spinner style="color: black; margin: 20px;"></b-spinner>
                         </div>
                     </div>
-                    <div>
+                    <div v-if="this.window.width > 600">
                         <b-container class="parameters">
                             <b-row>
                                 <b-col>
@@ -26,7 +26,7 @@
 
                             <b-row>
                                 <b-col>
-                                    <input class="arg-model" v-model="model">
+                                    <input class="field field-model" v-model="model">
                                 </b-col>
                             </b-row>
 
@@ -36,8 +36,8 @@
                             </b-row>
 
                             <b-row>
-                                <b-col><input v-model="minYear"></b-col>
-                                <b-col><input v-model="maxYear"></b-col>
+                                <b-col><input class="field" v-model="minYear"></b-col>
+                                <b-col><input class="field" v-model="maxYear"></b-col>
                             </b-row>
 
                             <b-row>
@@ -46,8 +46,8 @@
                             </b-row>
 
                             <b-row>
-                                <b-col><input v-model="minPrice"></b-col>
-                                <b-col><input v-model="maxPrice"></b-col>
+                                <b-col><input class="field" v-model="minPrice"></b-col>
+                                <b-col><input class="field" v-model="maxPrice"></b-col>
                             </b-row>
 
                             <b-row>
@@ -56,13 +56,64 @@
                             </b-row>
 
                             <b-row>
-                                <b-col><input v-model="minMiles"></b-col>
-                                <b-col><input v-model="maxMiles"></b-col>
+                                <b-col><input class="field" v-model="minMiles"></b-col>
+                                <b-col><input class="field" v-model="maxMiles"></b-col>
                             </b-row>
 
                             <b-row>
                                 <b-col>
-                                    <button v-on:click="updateParameters()">search</button>
+                                    <button class="button-search" v-on:click="updateParameters()">search</button>
+                                </b-col>
+                            </b-row>
+                        </b-container>
+                    </div>
+                    <div v-else>
+                        <b-container class="parameters-mobile">
+                            <b-row>
+                                <b-col>
+                                    <p class="label">model</p>
+                                </b-col>
+                            </b-row>
+
+                            <b-row>
+                                <b-col>
+                                    <input class="field-mobile field-model-mobile" v-model="model">
+                                </b-col>
+                            </b-row>
+
+                            <b-row>
+                                <b-col><p class="label">min year</p></b-col>
+                                <b-col><p class="label">max year</p></b-col>
+                            </b-row>
+
+                            <b-row>
+                                <b-col><input class="field-mobile" v-model="minYear"></b-col>
+                                <b-col><input class="field-mobile" v-model="maxYear"></b-col>
+                            </b-row>
+
+                            <b-row>
+                                <b-col><p class="label">min price ($)</p></b-col>
+                                <b-col><p class="label">max price ($)</p></b-col>
+                            </b-row>
+
+                            <b-row>
+                                <b-col><input class="field-mobile" v-model="minPrice"></b-col>
+                                <b-col><input class="field-mobile" v-model="maxPrice"></b-col>
+                            </b-row>
+
+                            <b-row>
+                                <b-col><p class="label">min miles</p></b-col>
+                                <b-col><p class="label">max miles</p></b-col>
+                            </b-row>
+
+                            <b-row>
+                                <b-col><input class="field-mobile" v-model="minMiles"></b-col>
+                                <b-col><input class="field-mobile" v-model="maxMiles"></b-col>
+                            </b-row>
+
+                            <b-row>
+                                <b-col>
+                                    <button class="button-search-mobile" v-on:click="updateParameters()">search</button>
                                 </b-col>
                             </b-row>
                         </b-container>
@@ -81,6 +132,14 @@
         components: {
             Results
         },
+
+        created() {
+            window.addEventListener('resize', this.handleResize);
+            this.handleResize();
+        },
+        destroyed() {
+            window.removeEventListener('resize', this.handleResize);
+        },
         data: function () {
             return {
                 adList: [],
@@ -93,7 +152,11 @@
                 minPrice: '',
                 maxPrice: '',
                 minMiles: '',
-                maxMiles: ''
+                maxMiles: '',
+                window: {
+                    width: 0,
+                    height: 0
+                }
             }
         },
         filters: {
@@ -102,6 +165,10 @@
             }
         },
         methods: {
+            handleResize() {
+                this.window.width = window.innerWidth;
+                this.window.height = window.innerHeight;
+            },
             updateParameters: function () {
                 this.parameters = {
                     model: this.model,
@@ -117,53 +184,41 @@
 
             executeSearch: function () {
                 let urls = this.getUrls();
-                this.getAndProcessPage(urls.nnj, this.parseResponse, null);
+
+                for (let i = 0; i < urls.length; i++) {
+                    this.getAndProcessPage(urls[i], this.parseResponse, null);
+                }
+
             },
 
             getUrls: function () {
                 let model = this.parameters['model'];
                 let minYear = this.parameters['minYear'];
-                //var maxYear = parameters.maxYear;
+                let maxYear = this.parameters['maxYear'];
                 let minPrice = this.parameters['minPrice'];
                 let maxPrice = this.parameters['maxPrice'];
                 let minMiles = this.parameters['minMiles'];
                 let maxMiles = this.parameters['maxMiles'];
 
-                // console.log(this.parameters);
 
-                // let model = 'bmw';
-                // let minYear = '2008';
-                // //var maxYear = parameters.maxYear;
-                // let minPrice = '5000';
-                // let maxPrice = '13000';
-                // let minMiles = '40000';
-                // let maxMiles = '80000';
+                let prefix = 'https://cors.io/?https://';
 
-                let corsPrefix = 'https://cors.io/?';
-
-                // northern new jersey search link
-                let urlNorth = corsPrefix + 'https://newjersey.craigslist.org/search/cto?auto_transmission=2&hasPic=1&min_price=' + minPrice
-                    + '&max_auto_miles=' + maxMiles + '&max_price=' + maxPrice + '&auto_make_model=' + model + '&min_auto_miles=' + minMiles
+                let link = '.craigslist.org/search/cto?auto_transmission=2&hasPic=1&min_price=' + minPrice
+                    + '&max_auto_miles=' + maxMiles + '&max_price=' + maxPrice + '&auto_make_model=' + model
+                    + '&min_auto_miles=' + minMiles + '&max_auto_year=' + maxYear
                     + '&min_auto_year=' + minYear + '&auto_title_status=1';
 
-                let urlCentral = corsPrefix + 'https://cnj.craigslist.org/search/cto?auto_transmission=2&hasPic=1&min_price=' + minPrice
-                    + '&max_auto_miles=' + maxMiles + '&max_price=' + maxPrice + '&auto_make_model=' + model + '&min_auto_miles=' + minMiles
-                    + '&min_auto_year=' + minYear + '&auto_title_status=1';
+                let urlCentral = prefix + 'cnj' + link;
+                let urlNorth = prefix + 'newjersey' + link;
+                let urlSouth = prefix + 'southjersey' + link;
+                let urlShore = prefix + 'jerseyshore' + link;
 
-                let urlSouth = corsPrefix + 'https://southjersey.craigslist.org/search/cto?auto_transmission=2&hasPic=1&min_price=' + minPrice
-                    + '&max_auto_miles=' + maxMiles + '&max_price=' + maxPrice + '&auto_make_model=' + model + '&min_auto_miles=' + minMiles
-                    + '&min_auto_year=' + minYear + '&auto_title_status=1';
-
-                let urlShore = corsPrefix + 'https://jerseyshore.craigslist.org/search/cto?auto_transmission=2&hasPic=1&min_price=' + minPrice
-                    + '&max_auto_miles=' + maxMiles + '&max_price=' + maxPrice + '&auto_make_model=' + model + '&min_auto_miles=' + minMiles
-                    + '&min_auto_year=' + minYear + '&auto_title_status=1';
-
-                return {
-                    nnj: urlNorth,
-                    cnj: urlCentral,
-                    snj: urlSouth,
-                    jsnj: urlShore
-                };
+                return [
+                    urlNorth,
+                    urlCentral,
+                    urlSouth,
+                    urlShore
+                ];
             },
 
             getAndProcessPage: function (url, callback, par) {
@@ -250,29 +305,9 @@
             }
         }
     }
-
-    // let adList = [];
-    // let loadCount = 0;
 </script>
 
 <style scoped>
-    input {
-        border: 1px solid #d0d0d0;
-        font-size: 20px;
-        padding: 5px 0 5px 10px;
-        margin: 0;
-        width: 180px;
-    }
-
-    button {
-        font-size: 20px;
-        padding: 10px;
-        font-weight: 700;
-        width: 350px;
-        margin: 50px 0 0;
-        border-radius: 5px;
-    }
-
     p {
         font-size: 18px;
         margin: 5px 0 0 0;
@@ -297,16 +332,56 @@
 
     .model-selector {
         background-color: var(--background);
-        min-width: 500px;
-    }
-
-
-    .arg-model {
-        width: 435px;
     }
 
     .parameters {
         width: 504px;
+    }
+
+    .parameters-mobile {
+        width: 90vw;
+    }
+
+    .field {
+        border: 1px solid #d0d0d0;
+        font-size: 20px;
+        padding: 5px 0 5px 10px;
+        margin: 0;
+        width: 180px;
+    }
+
+    .field-mobile {
+        border: 1px solid #d0d0d0;
+        font-size: 20px;
+        padding: 5px 0 5px 10px;
+        margin: 0;
+        width: 30vw;
+    }
+
+    .field-model {
+        width: 435px;
+    }
+
+    .field-model-mobile {
+        width: 75vw;
+    }
+
+    .button-search {
+        font-size: 20px;
+        padding: 10px;
+        font-weight: 700;
+        width: 350px;
+        margin: 50px 0 0;
+        border-radius: 5px;
+    }
+
+    .button-search-mobile {
+        font-size: 20px;
+        padding: 10px;
+        font-weight: 700;
+        width: 60vw;
+        margin: 50px 0 0;
+        border-radius: 5px;
     }
 
     .label {
