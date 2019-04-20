@@ -118,6 +118,9 @@
                             </b-row>
                         </b-container>
                     </div>
+                    <div v-if="searchFailed">
+                        <p class="error">It looks like something went wrong, please try again!</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -137,14 +140,18 @@
             window.addEventListener('resize', this.handleResize);
             this.handleResize();
         },
+
         destroyed() {
             window.removeEventListener('resize', this.handleResize);
         },
+
         data: function () {
             return {
                 adList: [],
+                adTitles: new Set(),
                 loadCount: 0,
                 renderModelSelector: true,
+                searchFailed: false,
                 parameters: {},
                 model: '',
                 minYear: '',
@@ -159,16 +166,19 @@
                 }
             }
         },
+
         filters: {
             title: function (str) {
                 return str[0].toUpperCase() + str.substr(1);
             }
         },
+
         methods: {
             handleResize() {
                 this.window.width = window.innerWidth;
                 this.window.height = window.innerHeight;
             },
+
             updateParameters: function () {
                 this.parameters = {
                     model: this.model,
@@ -188,7 +198,6 @@
                 for (let i = 0; i < urls.length; i++) {
                     this.getAndProcessPage(urls[i], this.parseResponse, null);
                 }
-
             },
 
             getUrls: function () {
@@ -199,6 +208,16 @@
                 let maxPrice = this.parameters['maxPrice'];
                 let minMiles = this.parameters['minMiles'];
                 let maxMiles = this.parameters['maxMiles'];
+
+                if (model === '$bmw') {
+                    model = 'bmw';
+                    minYear = '2008';
+                    maxYear = '2019';
+                    minPrice = '5000';
+                    maxPrice = '14000';
+                    minMiles = '50000';
+                    maxMiles = '85000';
+                }
 
 
                 let prefix = 'https://cors.io/?https://';
@@ -245,8 +264,7 @@
                 let rowsHTML = doc.getElementsByClassName('rows');
                 let liHTML = rowsHTML.item(0).getElementsByClassName('result-row');
 
-                // let count_total = 0;
-                let count_valid = 0;
+                this.searchFailed = (liHTML.length === 0);
 
                 // parses the listings titles and creates the advertisements
                 for (let i = 0; i < liHTML.length; i++) {
@@ -259,30 +277,42 @@
 
                     if (location !== 'newyork' && location !== 'philadelphia') {
                         let title = par.getElementsByClassName('result-title').item(0).innerText;
+
+                        if (this.adTitles.has(title)) {
+                            continue;
+                        }
+
+                        this.adTitles.add(title);
+
                         let datetime = ad_html.getElementsByTagName('time').item(0).getAttribute('datetime');
                         let date = datetime.split(' ')[0].split('-');
                         let price = ad_html.getElementsByClassName("result-price").item(0).innerText;
 
-                        advertisement['title'] = title;
-                        advertisement['location'] = location;
-                        advertisement['link'] = link;
-                        advertisement['date'] = date;
-                        advertisement['display'] = false;
-                        advertisement['price'] = price;
-                        advertisement['body'] = false;
-                        advertisement['image'] = "";
+                        let today = new Date();
+                        let postDate = new Date(parseInt(date[0]), parseInt(date[1]) - 1, parseInt(date[2]));
+                        let diffTime = today - postDate;
+                        diffTime = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-                        this.adList.push(advertisement);
-                        this.getAndProcessPage(('https://cors.io/?' + link), this.setImageAndInfo, count_valid);
+                        if (diffTime <= 14) {
+                            advertisement['title'] = title;
+                            advertisement['location'] = location;
+                            advertisement['link'] = link;
+                            advertisement['date'] = date;
+                            advertisement['age'] = diffTime;
+                            advertisement['display'] = false;
+                            advertisement['price'] = price;
+                            advertisement['body'] = '';
+                            advertisement['image'] = '';
 
-                        count_valid += 1;
+
+                            this.adList.push(advertisement);
+                            this.getAndProcessPage(('https://cors.io/?' + link), this.setImageAndInfo, advertisement);
+                        }
                     }
-                    // count_total += 1;
                 }
             },
 
-            setImageAndInfo: function (response, i) {
-                let ad = this.adList[i];
+            setImageAndInfo: function (response, ad) {
                 let imageList = response.getElementsByTagName('img');
                 if (imageList.length > 0) {
                     ad['image'] = imageList.item(0).getAttribute('src');
@@ -297,6 +327,7 @@
                 ad['body'] = body.innerText.substring(48);
             }
         },
+
         watch: {
             loadCount: function (countNew) {
                 if (countNew === this.adList.length) {
@@ -327,7 +358,6 @@
 
     .instructions {
         color: white;
-        margin-bottom: 40px;
     }
 
     .model-selector {
@@ -336,10 +366,12 @@
 
     .parameters {
         width: 504px;
+        margin-top: 20px;
     }
 
     .parameters-mobile {
         width: 90vw;
+        margin-top: 15px;
     }
 
     .field {
@@ -395,5 +427,11 @@
 
     .selection {
         padding-top: 50px;
+    }
+
+    .error {
+        font-weight: 500;
+        color: red;
+        margin-top: 25px;
     }
 </style>

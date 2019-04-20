@@ -4,19 +4,21 @@
             <h2>Check out the results below!</h2><br>
             <div class="rows">
                 <ul v-for="ad in toDisplay" :key="ad.id" v-on:click="displayAd(ad)">
-                    <b-container>
-                        <b-row>
-                            <b-col>
-                                <img :src="ad['image']" alt="Image" border="2">
-                            </b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col>
-                                <p class="price">{{ ad['price'] }}</p>
-                                <p>{{ ad['title'] | title }}</p>
-                            </b-col>
-                        </b-row>
-                    </b-container>
+                    <div class="outline">
+                        <b-container class="inner">
+                            <b-row>
+                                <b-col>
+                                    <img :src="ad['image']" alt="Image" border="2">
+                                </b-col>
+                            </b-row>
+                            <b-row>
+                                <b-col>
+                                    <p class="price">{{ ad['price'] }}</p>
+                                    <p>{{ ad['title'] | title }}</p>
+                                </b-col>
+                            </b-row>
+                        </b-container>
+                    </div>
                 </ul>
             </div>
         </div>
@@ -39,6 +41,7 @@
                             <h5>Price</h5>
                             <h6>{{ currentAd['price'] | title }}</h6>
                             <br>
+                            <p>Check it out <a :href="currentAd['link']" target="_blank" rel="noopener noreferrer">here</a>!</p>
                             <p v-if="currentAd['body'] !== false">{{ currentAd['body'] }}</p>
                         </b-col>
                     </b-row>
@@ -153,17 +156,14 @@
     ul {
         margin: 2%;
         display: inline-grid;
-        width: 240px;
+        /*width: 240px;*/
         min-height: 250px;
-        border-radius: 5px;
-        padding: 5px 5px 15px 5px;
+        /*padding: 5px 5px 15px 5px;*/
+        padding: 0;
         color: black;
-        background-color: rgba(92, 107, 192, 0.2);
-        border: 1px solid #c0c0c0;
         font-size: 18px;
         font-weight: 500;
         text-align: left;
-
     }
 
     ul:hover {
@@ -189,7 +189,7 @@
     }
 
     button {
-        color: #28343D;
+        color: white;
         font-size: 16px;
         font-weight: 700;
         font-family: 'Avenir', sans-serif;
@@ -200,6 +200,19 @@
         margin: 50px 0 0 0;
         padding: 0;
         text-align: center;
+    }
+
+    .outline {
+        padding: 10px;
+        border-radius: 3px;
+        border: 1px solid #cdcdcd;
+        background-color: var(--background);
+    }
+
+    .inner {
+        padding: 10px 20px;
+        border-radius: 3px;
+        background-color: rgba(140, 144, 182, 0.2);
     }
 
     .header {
