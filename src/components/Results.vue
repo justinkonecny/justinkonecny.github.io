@@ -1,6 +1,7 @@
 <template>
     <div v-cloak class="results">
-        <div v-if="showAll">
+        <!--Displays all listings found-->
+        <div v-if="showAllResults">
             <h2>Check out the results below!</h2><br>
             <div class="rows">
                 <ul v-for="ad in toDisplay" :key="ad.id" v-on:click="displayAd(ad)">
@@ -22,6 +23,7 @@
                 </ul>
             </div>
         </div>
+        <!--Displays one selected listing in more detail-->
         <div v-else>
             <div class="header">
                 <button v-on:click="displayAd(currentAd)">back</button>
@@ -52,65 +54,104 @@
 </template>
 
 <script>
-    /* eslint-disable no-console */
     export default {
         name: 'Results',
         props: {
+            // List of maps, where each entry represents one advertisement listing
             toDisplay: Array,
-            pageStatus: Number
         },
+
         data: function() {
             return {
-                showAll: true,
+                // True to display all processed results, false to display one selected advertisement
+                showAllResults: true,
+                // The advertisement to display in detail, when not showing all results
                 currentAd: Array
             }
         },
+
         filters: {
+            /**
+             * Given a date in the form of an array (3 elements), returns the date as a string.
+             * @param arr The date to format.
+             * @returns {string} The date in the form of a string.
+             */
             date: function(arr) {
                 return arr[1] + '/' + arr[2] + '/' + arr[0];
             },
+
+            /**
+             * Returns the given string with all lower case letters.
+             * @param {string} str The string to process.
+             * @returns {string} The lower case string.
+             */
             lowerCase: function(str) {
                 return str.toLowerCase();
             },
-            titleLower: function(str) {
-                if (str.length > 21) {
-                    return str.substring(0, 22).toLowerCase() + "...";
+
+            /**
+             * Returns the given string, shortened to 21 characters (all lower case).
+             * @param {string} title The string to process.
+             * @returns {string} The shortened, lower case string.
+             */
+            titleLower: function(title) {
+                if (title.length > 21) {
+                    return title.substring(0, 22).toLowerCase() + '...';
                 } else {
-                    return str.toLowerCase();
+                    return title.toLowerCase();
                 }
             },
-            title: function(str) {
-                if (str.length > 21) {
-                    return str.substring(0, 22) + "...";
+
+            /**
+             * Returns the given string, shortened to 21 characters.
+             * @param {string} title The string to process.
+             * @returns {string} The shortened string.
+             */
+            title: function(title) {
+                if (title.length > 21) {
+                    return title.substring(0, 22) + '...';
                 } else {
-                    return str;
+                    return title;
                 }
             },
+
+            /**
+             * Processes the string representing the listing's geographical location.
+             * @param {string} str The location to process.
+             * @returns {string} The correct geographic location, or the original string.
+             */
             splitLocation: function(str) {
-                if (str === "newjersey") {
-                    return "New Jersey";
-                } else if (str === "cnj") {
-                    return "Central New Jersey";
-                } else if (str === "jerseyshore") {
-                    return "Jersey Shore";
-                } else if (str === "southjersey") {
-                    return "South Jersey";
-                } else if (str === "delaware") {
-                    return "Delaware";
+                if (str === 'newjersey') {
+                    return 'New Jersey';
+                } else if (str === 'cnj') {
+                    return 'Central New Jersey';
+                } else if (str === 'jerseyshore') {
+                    return 'Jersey Shore';
+                } else if (str === 'southjersey') {
+                    return 'South Jersey';
+                } else if (str === 'delaware') {
+                    return 'Delaware';
+                } else if (str === 'longisland') {
+                    return 'Long Island';
                 } else {
                     return str;
                 }
             }
         },
+
         methods: {
+            /**
+             * Displays the given advertisement, or hides the advertisement if it's already displayed.
+             * @param ad The advertisement to display/hide.
+             */
             displayAd: function(ad) {
                 if (ad['display']) {
                     ad['display'] = false;
-                    this.showAll = true;
+                    this.showAllResults = true;
                 } else {
                     ad['display'] = true;
                     this.currentAd = ad;
-                    this.showAll = false;
+                    this.showAllResults = false;
                 }
             }
         }

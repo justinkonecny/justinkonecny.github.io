@@ -1,5 +1,6 @@
 <template>
     <div id="app">
+        <!--The application header displayed on every page, includes the logo and the title-->
         <div class="title" align="left">
             <svg xmlns="http://www.w3.org/2000/svg" width="70" height="60" viewBox="0 30 224 224"
                  style="padding-right: 15px; float: left; fill:#000000;">
@@ -11,19 +12,21 @@
             </svg>
             <h1 class="header">Liberty Cars</h1>
         </div>
+        <!--The rest of the page-->
         <div class="content">
-            <ModelSelector />
+            <!--Component for user input, searching, and displaying results-->
+            <Search/>
         </div>
     </div>
 </template>
 
 <script>
-    import ModelSelector from './components/ModelSelector.vue'
+    import Search from './components/Search.vue'
 
     export default {
         name: 'app',
         components: {
-            ModelSelector
+            Search
         }
     }
 </script>
@@ -31,6 +34,7 @@
 
 <style>
     :root {
+        /* Globally defined colors for consistent design */
         --background: #ededed;
         --banner: #5c6bc0;
         --title: #f7f7f7;

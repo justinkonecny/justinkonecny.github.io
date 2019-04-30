@@ -1,8 +1,11 @@
 <template>
     <div>
+        <!--If the search has finished, displays the results component-->
         <div v-if="!renderModelSelector">
             <Results :toDisplay="adList"/>
         </div>
+
+        <!--Else, display the parameter input page-->
         <div v-else>
             <div class="model-selector">
                 <div class="selection">
@@ -10,12 +13,15 @@
                         <p class="text-header">Looking for a new car?</p>
                         <p class="text-center">Fill out the search options below</p>
                     </div>
+                    <!--Indicates the program has started the search-->
                     <div v-else>
                         <div class="text-header">
-                        <p>Searching for your match...</p>
+                            <p>Searching for your match...</p>
                             <b-spinner style="color: black; margin: 20px;"></b-spinner>
                         </div>
                     </div>
+
+                    <!--Displays the input fields for desktop devices-->
                     <div v-if="this.window.width > 600">
                         <b-container class="parameters">
                             <b-row>
@@ -62,11 +68,12 @@
 
                             <b-row>
                                 <b-col>
-                                    <button class="button-search" v-on:click="updateParameters()">search</button>
+                                    <button class="button-search" v-on:click="executeSearch()">search</button>
                                 </b-col>
                             </b-row>
                         </b-container>
                     </div>
+                    <!--Displays the input fields for mobile devices-->
                     <div v-else>
                         <b-container class="parameters-mobile">
                             <b-row>
@@ -113,11 +120,13 @@
 
                             <b-row>
                                 <b-col>
-                                    <button class="button-search-mobile" v-on:click="updateParameters()">search</button>
+                                    <button class="button-search-mobile" v-on:click="executeSearch()">search</button>
                                 </b-col>
                             </b-row>
                         </b-container>
                     </div>
+
+                    <!--Displays an error message if the search returns zero results-->
                     <div v-if="searchFailed">
                         <p class="error">It looks like something went wrong, please try again!</p>
                     </div>
@@ -131,67 +140,64 @@
     import Results from './Results.vue';
 
     export default {
-        name: 'ModelSelector',
+        name: 'Search',
         components: {
             Results
         },
 
         created() {
+            // Add the window resize listener, update the window width and height
             window.addEventListener('resize', this.handleResize);
             this.handleResize();
         },
 
         destroyed() {
+            // Remove the window resize listener
             window.removeEventListener('resize', this.handleResize);
         },
 
         data: function () {
             return {
+                // The current window width and height
+                window: {
+                    width: 0,
+                    height: 0
+                },
+                // List of maps, where each entry represents one advertisement listing
                 adList: [],
+                // List of strings, where each string represents one advertisement title
                 adTitles: new Set(),
+                // The number of advertisements that have fully loaded (including secondary images)
                 loadCount: 0,
+                // True to show the search input page, false to show the results page
                 renderModelSelector: true,
+                // Whether or not the last search failed
                 searchFailed: false,
-                parameters: {},
+                // The maximum number of days old a post can be
+                maxAge: 14,
+                // The search parameter (inputted by the user)
                 model: '',
                 minYear: '',
                 maxYear: '',
                 minPrice: '',
                 maxPrice: '',
                 minMiles: '',
-                maxMiles: '',
-                window: {
-                    width: 0,
-                    height: 0
-                }
-            }
-        },
-
-        filters: {
-            title: function (str) {
-                return str[0].toUpperCase() + str.substr(1);
+                maxMiles: ''
             }
         },
 
         methods: {
+            /**
+             * Updates the stored window width and height on the initial page render and on every resize.
+             */
             handleResize() {
                 this.window.width = window.innerWidth;
                 this.window.height = window.innerHeight;
             },
 
-            updateParameters: function () {
-                this.parameters = {
-                    model: this.model,
-                    minYear: this.minYear,
-                    maxYear: this.maxYear,
-                    minPrice: this.minPrice,
-                    maxPrice: this.maxPrice,
-                    minMiles: this.minMiles,
-                    maxMiles: this.maxMiles
-                };
-                this.executeSearch();
-            },
-
+            /**
+             * Begins the search for all locations returned by the `getUrls` method.
+             */
             executeSearch: function () {
                 let urls = this.getUrls();
 
@@ -200,25 +206,40 @@
                 }
             },
 
+            /**
+             * Processes the user inputted search parameters and returns the proper Craiglist URLS for:
+             *  - North Jersey
+             *  - Central Jersey
+             *  - Jersey Shore
+             *  - South Jersey
+             * @returns {string[]} The list of URLs to process and search.
+             */
             getUrls: function () {
-                let model = this.parameters['model'];
-                let minYear = this.parameters['minYear'];
-                let maxYear = this.parameters['maxYear'];
-                let minPrice = this.parameters['minPrice'];
-                let maxPrice = this.parameters['maxPrice'];
-                let minMiles = this.parameters['minMiles'];
-                let maxMiles = this.parameters['maxMiles'];
+                let model = this.model;
+                let minYear = this.minYear;
+                let maxYear = this.maxYear;
+                let minPrice = this.minPrice;
+                let maxPrice = this.maxPrice;
+                let minMiles = this.minMiles;
+                let maxMiles = this.maxMiles;
 
-                if (model === '$bmw') {
-                    model = 'bmw';
-                    minYear = '2008';
+                if (model === '$bmw' || model === '$jeep') {
+                    model = model.substring(1);
+                    minYear = '2010';
                     maxYear = '2019';
                     minPrice = '5000';
                     maxPrice = '14000';
                     minMiles = '50000';
                     maxMiles = '85000';
+                } else if (model === '$mercedes' || model === '$lexus' || model === '$infiniti') {
+                    model = model.substring(1);
+                    minYear = '2010';
+                    maxYear = '2019';
+                    minPrice = '5000';
+                    maxPrice = '17000';
+                    minMiles = '50000';
+                    maxMiles = '85000';
                 }
-
 
                 let prefix = 'https://cors.io/?https://';
 
@@ -240,6 +261,13 @@
                 ];
             },
 
+            /**
+             * Makes an asynchronous GET XMLHttpRequest for the given URL.
+             * Upon completion, makes a callback to the given function with at most one parameter.
+             * @param {string} url The link to request the page of.
+             * @param callback The function to execute after the request is completed.
+             * @param par The argument to pass into the callback, or null to execute with no arguments.
+             */
             getAndProcessPage: function (url, callback, par) {
                 let anHttpRequest = new XMLHttpRequest();
                 anHttpRequest.onreadystatechange = function () {
@@ -260,13 +288,18 @@
                 anHttpRequest.send(null);
             },
 
+            /**
+             * Parses the HTML page returned from a search and saves all present listings.
+             * @param doc The HTML document returned by the XMLHttpRequest.
+             */
             parseResponse: function (doc) {
                 let rowsHTML = doc.getElementsByClassName('rows');
                 let liHTML = rowsHTML.item(0).getElementsByClassName('result-row');
 
+                // This search 'failed' if no listing results were found
                 this.searchFailed = (liHTML.length === 0);
 
-                // parses the listings titles and creates the advertisements
+                // Parses the listings titles and creates the advertisements
                 for (let i = 0; i < liHTML.length; i++) {
                     let ad_html = liHTML.item(i);
                     let advertisement = {};
@@ -275,25 +308,28 @@
                     let link = par.getElementsByTagName('a').item(0).getAttribute('href');
                     let location = link.split('.')[0].split('//')[1];
 
+                    // Filters out all vehicles from New York and Philadelphia
                     if (location !== 'newyork' && location !== 'philadelphia') {
                         let title = par.getElementsByClassName('result-title').item(0).innerText;
 
+                        // Filters out duplicate listings (based on duplicate titles)
                         if (this.adTitles.has(title)) {
                             continue;
                         }
-
                         this.adTitles.add(title);
 
+                        // Parses this listing's posting date
                         let datetime = ad_html.getElementsByTagName('time').item(0).getAttribute('datetime');
                         let date = datetime.split(' ')[0].split('-');
-                        let price = ad_html.getElementsByClassName("result-price").item(0).innerText;
-
                         let today = new Date();
                         let postDate = new Date(parseInt(date[0]), parseInt(date[1]) - 1, parseInt(date[2]));
                         let diffTime = today - postDate;
                         diffTime = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-                        if (diffTime <= 14) {
+                        // Filters out any post older than 14 days
+                        if (diffTime <= this.maxAge) {
+                            let price = ad_html.getElementsByClassName("result-price").item(0).innerText;
+
                             advertisement['title'] = title;
                             advertisement['location'] = location;
                             advertisement['link'] = link;
@@ -304,7 +340,7 @@
                             advertisement['body'] = '';
                             advertisement['image'] = '';
 
-
+                            // Saves this listing to the list of advertisements
                             this.adList.push(advertisement);
                             this.getAndProcessPage(('https://cors.io/?' + link), this.setImageAndInfo, advertisement);
                         }
@@ -312,13 +348,19 @@
                 }
             },
 
+            /**
+             * Processes and parses the response page for a single advertisement.
+             * Saves the advertisement images and body text.
+             * @param response The HTML response for a listing from the XMLHttpRequest.
+             * @param ad The advertisement this page belongs to.
+             */
             setImageAndInfo: function (response, ad) {
                 let imageList = response.getElementsByTagName('img');
                 if (imageList.length > 0) {
                     ad['image'] = imageList.item(0).getAttribute('src');
                     this.loadCount++;
                 } else {
-                    ad['image'] = "none";
+                    ad['image'] = 'none';
                 }
 
                 let userbody = response.getElementsByClassName('userbody')[0];
@@ -329,6 +371,10 @@
         },
 
         watch: {
+            /**
+             * Watches the count of completed advertisements and displays the results once all are finished.
+             * @param countNew The number of listings that have been fully processed.
+             */
             loadCount: function (countNew) {
                 if (countNew === this.adList.length) {
                     this.renderModelSelector = false;
