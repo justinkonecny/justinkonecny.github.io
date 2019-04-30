@@ -26,13 +26,14 @@
         <!--Displays one selected listing in more detail-->
         <div v-else>
             <div class="header">
-                <button v-on:click="displayAd(currentAd)">back</button>
+                <button class="btn-back" v-on:click="displayAd(currentAd)">back</button>
             </div>
             <div align="left">
                 <b-container>
                     <b-row>
                         <b-col>
                             <img class="single" :src="currentAd['image']" alt="Image" border="2">
+                            <img class="thumb" v-for="img in currentAd['imageList']" :key="img.id" v-on:click="showImage(img)" :src="img" alt="Image">
                         </b-col>
                         <b-col>
                             <h5>{{ currentAd['title'] }}</h5>
@@ -61,7 +62,7 @@
             toDisplay: Array,
         },
 
-        data: function() {
+        data() {
             return {
                 // True to display all processed results, false to display one selected advertisement
                 showAllResults: true,
@@ -76,7 +77,7 @@
              * @param arr The date to format.
              * @returns {string} The date in the form of a string.
              */
-            date: function(arr) {
+            date(arr) {
                 return arr[1] + '/' + arr[2] + '/' + arr[0];
             },
 
@@ -85,7 +86,7 @@
              * @param {string} str The string to process.
              * @returns {string} The lower case string.
              */
-            lowerCase: function(str) {
+            lowerCase(str) {
                 return str.toLowerCase();
             },
 
@@ -94,7 +95,7 @@
              * @param {string} title The string to process.
              * @returns {string} The shortened, lower case string.
              */
-            titleLower: function(title) {
+            titleLower(title) {
                 if (title.length > 21) {
                     return title.substring(0, 22).toLowerCase() + '...';
                 } else {
@@ -107,7 +108,7 @@
              * @param {string} title The string to process.
              * @returns {string} The shortened string.
              */
-            title: function(title) {
+            title(title) {
                 if (title.length > 21) {
                     return title.substring(0, 22) + '...';
                 } else {
@@ -120,7 +121,7 @@
              * @param {string} str The location to process.
              * @returns {string} The correct geographic location, or the original string.
              */
-            splitLocation: function(str) {
+            splitLocation(str) {
                 if (str === 'newjersey') {
                     return 'New Jersey';
                 } else if (str === 'cnj') {
@@ -144,7 +145,7 @@
              * Displays the given advertisement, or hides the advertisement if it's already displayed.
              * @param ad The advertisement to display/hide.
              */
-            displayAd: function(ad) {
+            displayAd(ad) {
                 if (ad['display']) {
                     ad['display'] = false;
                     this.showAllResults = true;
@@ -153,6 +154,10 @@
                     this.currentAd = ad;
                     this.showAllResults = false;
                 }
+            },
+
+            showImage(newSrc) {
+                this.currentAd['image'] = newSrc;
             }
         }
     }
@@ -229,7 +234,7 @@
         margin: 0;
     }
 
-    button {
+    .btn-back {
         color: white;
         font-size: 16px;
         font-weight: 700;
@@ -278,5 +283,18 @@
 
     .results {
         background-color: var(--background);
+    }
+
+    .thumb {
+        margin: 3px;
+        object-fit: cover;
+        width: 50px;
+        height: 50px;
+        border: 1px solid var(--banner);
+    }
+
+    .thumb:hover {
+        cursor: pointer;
+        filter: brightness(115%);
     }
 </style>

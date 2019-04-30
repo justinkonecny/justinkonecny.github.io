@@ -156,7 +156,7 @@
             window.removeEventListener('resize', this.handleResize);
         },
 
-        data: function () {
+        data() {
             return {
                 // The current window width and height
                 window: {
@@ -198,7 +198,7 @@
             /**
              * Begins the search for all locations returned by the `getUrls` method.
              */
-            executeSearch: function () {
+            executeSearch() {
                 let urls = this.getUrls();
 
                 for (let i = 0; i < urls.length; i++) {
@@ -214,7 +214,7 @@
              *  - South Jersey
              * @returns {string[]} The list of URLs to process and search.
              */
-            getUrls: function () {
+            getUrls() {
                 let model = this.model;
                 let minYear = this.minYear;
                 let maxYear = this.maxYear;
@@ -268,7 +268,7 @@
              * @param callback The function to execute after the request is completed.
              * @param par The argument to pass into the callback, or null to execute with no arguments.
              */
-            getAndProcessPage: function (url, callback, par) {
+            getAndProcessPage(url, callback, par) {
                 let anHttpRequest = new XMLHttpRequest();
                 anHttpRequest.onreadystatechange = function () {
                     if (anHttpRequest.readyState === 4 && anHttpRequest.status === 200) {
@@ -292,7 +292,7 @@
              * Parses the HTML page returned from a search and saves all present listings.
              * @param doc The HTML document returned by the XMLHttpRequest.
              */
-            parseResponse: function (doc) {
+            parseResponse(doc) {
                 let rowsHTML = doc.getElementsByClassName('rows');
                 let liHTML = rowsHTML.item(0).getElementsByClassName('result-row');
 
@@ -339,6 +339,7 @@
                             advertisement['price'] = price;
                             advertisement['body'] = '';
                             advertisement['image'] = '';
+                            advertisement['imageList'] = [];
 
                             // Saves this listing to the list of advertisements
                             this.adList.push(advertisement);
@@ -354,13 +355,18 @@
              * @param response The HTML response for a listing from the XMLHttpRequest.
              * @param ad The advertisement this page belongs to.
              */
-            setImageAndInfo: function (response, ad) {
+            setImageAndInfo(response, ad) {
                 let imageList = response.getElementsByTagName('img');
                 if (imageList.length > 0) {
-                    ad['image'] = imageList.item(0).getAttribute('src');
+                    let srcLink = imageList.item(0).getAttribute('src');
+                    ad['image'] = srcLink;
                     this.loadCount++;
-                } else {
-                    ad['image'] = 'none';
+                }
+
+                let imageThumbs = response.getElementsByClassName('thumb');
+                for (let i = 0; i < imageThumbs.length; i++) {
+                    let link = imageThumbs.item(i).getAttribute('href');
+                    ad['imageList'].push(link);
                 }
 
                 let userbody = response.getElementsByClassName('userbody')[0];
@@ -375,7 +381,7 @@
              * Watches the count of completed advertisements and displays the results once all are finished.
              * @param countNew The number of listings that have been fully processed.
              */
-            loadCount: function (countNew) {
+            loadCount(countNew) {
                 if (countNew === this.adList.length) {
                     this.renderModelSelector = false;
                 }
