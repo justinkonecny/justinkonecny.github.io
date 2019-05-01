@@ -2,7 +2,7 @@
     <div>
         <!--If the search has finished, displays the results component-->
         <div v-if="!renderModelSelector">
-            <Results :toDisplay="adList"/>
+            <Results :toDisplay="adList" v-on:reloadSearch="reloadPage"/>
         </div>
 
         <!--Else, display the parameter input page-->
@@ -11,7 +11,7 @@
                 <div class="selection">
                     <div class="instructions" v-if="adList.length === 0">
                         <p class="text-header">Looking for a new car?</p>
-                        <p class="text-center">Fill out the search options below</p>
+                        <p class="text-center">Fill out the search options below!</p>
                     </div>
                     <!--Indicates the program has started the search-->
                     <div v-else>
@@ -373,6 +373,21 @@
                 let body = userbody.getElementsByTagName('section')[0];
 
                 ad['body'] = body.innerText.substring(48);
+            },
+
+            reloadPage() {
+                this.adTitles = new Set();
+                this.adList = [];
+                this.loadCount = 0;
+                this.searchFailed = false;
+                this.model = '';
+                this.minYear = '';
+                this.maxYear = '';
+                this.minPrice = '';
+                this.maxPrice = '';
+                this.minMiles = '';
+                this.maxMiles = '';
+                this.renderModelSelector = true;
             }
         },
 
@@ -382,7 +397,7 @@
              * @param countNew The number of listings that have been fully processed.
              */
             loadCount(countNew) {
-                if (countNew === this.adList.length) {
+                if (countNew > 0 && countNew === this.adList.length) {
                     this.renderModelSelector = false;
                 }
             }
@@ -413,7 +428,7 @@
     }
 
     .model-selector {
-        background-color: var(--background);
+        background-color: var(--grey-bg);
     }
 
     .parameters {

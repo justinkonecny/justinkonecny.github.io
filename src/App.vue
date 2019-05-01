@@ -35,30 +35,25 @@
 <style>
     :root {
         /* Globally defined colors for consistent design */
-        --background: #ededed;
-        --banner: #5c6bc0;
-        --title: #f7f7f7;
-        --text-dark: #0B0F2F;
+        --grey-bg: #ededed;
+        --purple-main: #5c6bc0;
+        --text-title: #f7f7f7;
         --text-light: white;
+        --text-error: red;
+        --dark-grey: #0B0F2F;
         --input-field: white;
-        --button: #4db6ac;
-        --button-hover: #26a69a;
-
-
-        --subsection: #557096;
-        --hover: #b0b0b0;
-        --light: #F1F1F3;
-        --highlight: #F76142;
+        --green-acnt: #4db6ac;
+        --green-acnt-drk: #26a69a;
     }
 
     html {
-        background-color: var(--background);
+        background-color: var(--grey-bg);
     }
 
     input {
         font-family: 'Avenir', Helvetica, Arial, sans-serif;
         background-color: white;
-        color: var(--text-dark);
+        color: var(--dark-grey);
         border-radius: 5px;
         border-width: 0px;
         padding: 0;
@@ -66,24 +61,25 @@
     }
 
     input:focus {
-        color: var(--button-hover);
+        color: var(--green-acnt-drk);
     }
 
     button {
         font-family: 'Avenir', Helvetica, Arial, sans-serif;
-        background-color: var(--button);
-        border-color: var(--button);
+        background-color: var(--green-acnt);
+        border-color: var(--green-acnt);
         color: var(--text-light);
         border-radius: 5px;
     }
 
     button:hover {
         cursor: pointer;
-        background-color: var(--button-hover);
+        background-color: var(--green-acnt-drk);
+        border-color: var(--green-acnt-drk);
     }
 
     p {
-        color: var(--text-dark);
+        color: var(--dark-grey);
     }
 
     .title {
@@ -91,7 +87,7 @@
         padding-top: 10px;
         padding-bottom: 5px;
         padding-left: 15px;
-        background: var(--banner);
+        background: var(--purple-main);
     }
 
     .header {
@@ -99,7 +95,7 @@
         padding: 0;
         font-size: 40px;
         font-weight: 900;
-        color: var(--title);
+        color: var(--text-title);
     }
 
     .content {
@@ -112,8 +108,8 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         text-align: center;
-        background-color: var(--background);
-        color: var(--background);
+        background-color: var(--grey-bg);
+        color: var(--grey-bg);
         margin: 0;
         padding: 0;
     }

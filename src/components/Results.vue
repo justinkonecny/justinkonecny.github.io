@@ -1,5 +1,9 @@
 <template>
     <div v-cloak class="results">
+        <div class="btn-container">
+            <button class="btn-back" v-on:click="back()">back</button>
+        </div>
+
         <!--Displays all listings found-->
         <div v-if="showAllResults">
             <h2>Check out the results below!</h2><br>
@@ -9,7 +13,7 @@
                         <b-container class="inner">
                             <b-row>
                                 <b-col>
-                                    <img :src="ad['image']" alt="Image" border="2">
+                                    <img class="img-result" :src="ad['image']" alt="Image" border="2">
                                 </b-col>
                             </b-row>
                             <b-row>
@@ -25,15 +29,14 @@
         </div>
         <!--Displays one selected listing in more detail-->
         <div v-else>
-            <div class="header">
-                <button class="btn-back" v-on:click="displayAd(currentAd)">back</button>
-            </div>
             <div align="left">
                 <b-container>
                     <b-row>
                         <b-col>
-                            <img class="single" :src="currentAd['image']" alt="Image" border="2">
-                            <img class="thumb" v-for="img in currentAd['imageList']" :key="img.id" v-on:click="showImage(img)" :src="img" alt="Image">
+                            <div class="img-container">
+                                <img class="img-main" :src="currentAd['image']" alt="Image" border="2">
+                            </div>
+                            <img class="thumb" v-for="img in currentAd['imageList']" :key="img.id" v-on:mouseover="showImage(img)" :src="img" alt="Image">
                         </b-col>
                         <b-col>
                             <h5>{{ currentAd['title'] }}</h5>
@@ -44,7 +47,7 @@
                             <h5>Price</h5>
                             <h6>{{ currentAd['price'] | title }}</h6>
                             <br>
-                            <p>Check it out <a :href="currentAd['link']" target="_blank" rel="noopener noreferrer">here</a>!</p>
+                            <p><span style="font-weight: 800; font-size: 20px">Check it out <a :href="currentAd['link']" target="_blank" rel="noopener noreferrer">here</a>! </span></p>
                             <p v-if="currentAd['body'] !== false">{{ currentAd['body'] }}</p>
                         </b-col>
                     </b-row>
@@ -156,6 +159,23 @@
                 }
             },
 
+            /**
+             * Handles returning from one advertisement to the list of results, or from the list of results to a new search.
+             */
+            back() {
+                if (this.currentAd['display'] === true) {
+                    this.displayAd(this.currentAd);
+                } else {
+                    this.$emit('reloadSearch');
+                }
+
+            },
+
+            /**
+             * Updates the displayed advertisement image to the new given image.
+             *
+             * @param {string} newSrc the new image to display (src).
+             */
             showImage(newSrc) {
                 this.currentAd['image'] = newSrc;
             }
@@ -165,28 +185,29 @@
 
 <style scoped>
     h2 {
-        padding: 30px 0 0 0;
+        padding: 0;
         margin: 0;
         font-size: 20px;
         font-weight: 800;
-        color: var(--text-dark);
+        color: var(--dark-grey);
     }
 
     h5 {
+        font-size: 21px;
         font-weight: 700;
-        color: var(--text-dark);
+        color: var(--dark-grey);
         margin: 15px 0 0 2px;
     }
 
     h6 {
-        font-size: 15px;
+        font-size: 18px;
         font-weight: 500;
-        color: var(--text-dark);
+        color: var(--dark-grey);
         margin: 0;
     }
 
-    p,a  {
-        font-size: 14px;
+    p  {
+        font-size: 17px;
         font-weight: 500;
         padding: 0;
         margin: 0;
@@ -194,17 +215,10 @@
         alignment: left;
     }
 
-    a:hover {
-        font-weight: 900;
-        text-decoration-line: underline;
-    }
-
     ul {
         margin: 2%;
         display: inline-grid;
-        /*width: 240px;*/
         min-height: 250px;
-        /*padding: 5px 5px 15px 5px;*/
         padding: 0;
         color: black;
         font-size: 18px;
@@ -217,11 +231,16 @@
         cursor: pointer;
     }
 
-    img {
+    table {
+        padding: 0;
+        margin: 0;
+    }
+
+    .img-result {
         object-fit: cover;
         width: 200px;
         height: 150px;
-        border-radius: 5px;
+        border-radius: 3px;
         border-width: 2px;
         border-color: white;
         margin-top: 15px;
@@ -229,21 +248,20 @@
         padding-top: 0;
     }
 
-    table {
-        padding: 0;
-        margin: 0;
+    .btn-container {
+        display: flex;
+        margin: 30px;
     }
 
     .btn-back {
         color: white;
-        font-size: 16px;
+        font-size: 18px;
         font-weight: 700;
         font-family: 'Avenir', sans-serif;
-        width: 75px;
-        height: 40px;
+        width: 85px;
+        height: 45px;
         border-radius: 5px;
         border-width: 3px;
-        margin: 50px 0 0 0;
         padding: 0;
         text-align: center;
     }
@@ -252,7 +270,7 @@
         padding: 10px;
         border-radius: 3px;
         border: 1px solid #cdcdcd;
-        background-color: var(--background);
+        background-color: var(--grey-bg);
     }
 
     .inner {
@@ -261,16 +279,8 @@
         background-color: rgba(140, 144, 182, 0.2);
     }
 
-    .header {
-        margin: 0;
-        padding: 0;
-        text-align: left;
-    }
-
-    .single {
-        object-fit: cover;
-        width: 100%;
-        height: 400px;
+    .inner:hover {
+        background-color: rgba(153, 158, 200, 0.30);
     }
 
     .price {
@@ -282,19 +292,37 @@
     }
 
     .results {
-        background-color: var(--background);
+        margin: 0;
+        padding: 0;
+        background-color: var(--grey-bg);
+    }
+
+    .img-container {
+        width: 100%;
+        margin-bottom: 10px;
+        display: flex;
+    }
+
+    .img-main {
+        margin: auto;
+        max-width: 100%;
+        max-height: 100%;
+        border: 2px solid var(--dark-grey);
+        border-radius: 3px;
     }
 
     .thumb {
-        margin: 3px;
+        margin: 5px;
         object-fit: cover;
         width: 50px;
         height: 50px;
-        border: 1px solid var(--banner);
+        border: 1px solid var(--dark-grey);
+        border-radius: 3px;
     }
 
     .thumb:hover {
         cursor: pointer;
         filter: brightness(115%);
+        border-color: var(--green-acnt);
     }
 </style>
