@@ -32,7 +32,7 @@
 
                             <b-row>
                                 <b-col>
-                                    <input class="field field-model" v-model="model">
+                                    <input class="field field-model" v-model="model" onkeydown="if (event.keyCode === 13) { document.getElementById('btnSearch').click(); }">
                                 </b-col>
                             </b-row>
 
@@ -63,12 +63,12 @@
 
                             <b-row>
                                 <b-col><input class="field" v-model="minMiles"></b-col>
-                                <b-col><input class="field" v-model="maxMiles"></b-col>
+                                <b-col><input class="field" v-model="maxMiles" onkeydown="if (event.keyCode === 13) { document.getElementById('btnSearch').click(); }"></b-col>
                             </b-row>
 
                             <b-row>
                                 <b-col>
-                                    <button class="button-search" v-on:click="executeSearch()">search</button>
+                                    <button id="btnSearch" class="button-search" v-on:click="executeSearch()">search</button>
                                 </b-col>
                             </b-row>
                         </b-container>
