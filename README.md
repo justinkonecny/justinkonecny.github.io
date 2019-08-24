@@ -1,6 +1,6 @@
 # Liberty Cars (Vue.js)
 ### Vue Interface for 'websearch_gui'
-A gui for another Java project ('websearch_gui'). Searches for personal vehicles on Craiglist, parses the search, and displays the results to the user. Developed to learn Vue.js. The `screenshots/` folder contains images of the current project rendered.
+A gui for another Java project ('websearch_gui'). Searches for personal vehicles on Craiglist, parses the search, and displays the results to the user. Developed to learn Vue.js. The `src/screenshots/` folder contains images of the current project rendered.
 
 ## Project Breakdown
 ### src/
