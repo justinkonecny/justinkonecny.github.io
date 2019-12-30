@@ -55,7 +55,7 @@
         background-color: white;
         color: var(--dark-grey);
         border-radius: 5px;
-        border-width: 0px;
+        border-width: 0;
         padding: 0;
         margin: 0;
     }
@@ -70,6 +70,7 @@
         border-color: var(--green-acnt);
         color: var(--text-light);
         border-radius: 5px;
+        border-style: solid;
     }
 
     button:hover {

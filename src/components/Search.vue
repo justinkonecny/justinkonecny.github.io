@@ -182,7 +182,8 @@
                 minPrice: '',
                 maxPrice: '',
                 minMiles: '',
-                maxMiles: ''
+                maxMiles: '',
+                reqPrefix: 'https://floating-tundra-10467.herokuapp.com/'
             }
         },
 
@@ -241,24 +242,26 @@
                     maxMiles = '85000';
                 }
 
-                let prefix = 'https://cors.io/?https://';
+                let prefix = this.reqPrefix + 'https://';
 
                 let link = '.craigslist.org/search/cto?auto_transmission=2&hasPic=1&min_price=' + minPrice
                     + '&max_auto_miles=' + maxMiles + '&max_price=' + maxPrice + '&auto_make_model=' + model
                     + '&min_auto_miles=' + minMiles + '&max_auto_year=' + maxYear
                     + '&min_auto_year=' + minYear + '&auto_title_status=1';
 
-                let urlCentral = prefix + 'cnj' + link;
+                // let urlCentral = prefix + 'cnj' + link;
                 let urlNorth = prefix + 'newjersey' + link;
-                let urlSouth = prefix + 'southjersey' + link;
-                let urlShore = prefix + 'jerseyshore' + link;
+                // let urlSouth = prefix + 'southjersey' + link;
+                // let urlShore = prefix + 'jerseyshore' + link;
 
-                return [
-                    urlNorth,
-                    urlCentral,
-                    urlSouth,
-                    urlShore
-                ];
+                return [urlNorth];
+                //
+                // return [
+                //     urlNorth,
+                //     urlCentral,
+                //     urlSouth,
+                //     urlShore
+                // ];
             },
 
             /**
@@ -343,7 +346,7 @@
 
                             // Saves this listing to the list of advertisements
                             this.adList.push(advertisement);
-                            this.getAndProcessPage(('https://cors.io/?' + link), this.setImageAndInfo, advertisement);
+                            this.getAndProcessPage((this.reqPrefix + link), this.setImageAndInfo, advertisement);
                         }
                     }
                 }
