@@ -249,19 +249,18 @@
                     + '&min_auto_miles=' + minMiles + '&max_auto_year=' + maxYear
                     + '&min_auto_year=' + minYear + '&auto_title_status=1';
 
-                // let urlCentral = prefix + 'cnj' + link;
+                let urlCentral = prefix + 'cnj' + link;
                 let urlNorth = prefix + 'newjersey' + link;
-                // let urlSouth = prefix + 'southjersey' + link;
-                // let urlShore = prefix + 'jerseyshore' + link;
+                let urlSouth = prefix + 'southjersey' + link;
+                let urlShore = prefix + 'jerseyshore' + link;
 
-                return [urlNorth];
-                //
-                // return [
-                //     urlNorth,
-                //     urlCentral,
-                //     urlSouth,
-                //     urlShore
-                // ];
+
+                return [
+                     urlNorth,
+                     urlCentral,
+                     urlSouth,
+                     urlShore
+                ];
             },
 
             /**
