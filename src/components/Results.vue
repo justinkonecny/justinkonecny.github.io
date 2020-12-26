@@ -8,37 +8,40 @@
         <div v-if="showAllResults">
             <h2>Check out the results below!</h2><br>
             <div class="rows">
-                <ul v-for="ad in toDisplay" :key="ad.id" v-on:click="displayAd(ad)">
-                    <div class="outline">
-                        <b-container class="inner">
-                            <b-row>
-                                <b-col>
-                                    <img class="img-result" :src="ad['image']" alt="Image" border="2">
-                                </b-col>
-                            </b-row>
-                            <b-row>
-                                <b-col>
-                                    <p class="price">{{ ad['price'] }}</p>
-                                    <p>{{ ad['title'] | title }}</p>
-                                </b-col>
-                            </b-row>
-                        </b-container>
-                    </div>
+                <ul v-for="ad in toDisplay" :key="ad.id">
+                    <a :href="ad['link']" target="_blank" rel="noopener noreferrer">
+                        <!--                    <ul v-for="ad in toDisplay" :key="ad.id" v-on:click="displayAd(ad)">-->
+                        <div class="outline">
+                            <div class="inner">
+                                <div class="row">
+                                    <div class="col">
+                                        <img class="img-result" :src="ad['image']" alt="Image">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <p class="price">{{ ad['price'] }}</p>
+                                        <p>{{ ad['title'] | title }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
                 </ul>
             </div>
         </div>
         <!--Displays one selected listing in more detail-->
         <div v-else>
-            <div align="left">
-                <b-container>
-                    <b-row>
-                        <b-col>
+            <div>
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
                             <div class="img-container">
-                                <img class="img-main" :src="currentAd['image']" alt="Image" border="2">
+                                <img class="img-main" :src="currentAd['image']" alt="Image">
                             </div>
                             <img class="thumb" v-for="img in currentAd['imageList']" :key="img.id" v-on:mouseover="showImage(img)" :src="img" alt="Image">
-                        </b-col>
-                        <b-col>
+                        </div>
+                        <div class="col">
                             <h5>{{ currentAd['title'] }}</h5>
                             <h5>Location</h5>
                             <h6>{{ currentAd['location'] | splitLocation }}</h6>
@@ -49,20 +52,27 @@
                             <br>
                             <p><span style="font-weight: 800; font-size: 20px">Check it out <a :href="currentAd['link']" target="_blank" rel="noopener noreferrer">here</a>! </span></p>
                             <p v-if="currentAd['body'] !== false">{{ currentAd['body'] }}</p>
-                        </b-col>
-                    </b-row>
-                </b-container>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script>
+    const axios = require('axios').default;
+
     export default {
         name: 'Results',
         props: {
             // List of maps, where each entry represents one advertisement listing
-            toDisplay: Array,
+            toDisplay: Array
+        },
+
+        created() {
+            // this.API_ENDPOINT = 'https://api.jkonecny.com/lc';
+            this.API_ENDPOINT = 'http://localhost:8081/lc';
         },
 
         data() {
@@ -156,6 +166,14 @@
                     ad['display'] = true;
                     this.currentAd = ad;
                     this.showAllResults = false;
+
+                    console.log(ad);
+
+                    if (!ad['loaded']) {
+                        const body = {Link: ad['link']};
+                        this.getAndProcessPage('/listing', body, this.setImageAndInfo, ad);
+                    }
+
                 }
             },
 
@@ -178,6 +196,47 @@
              */
             showImage(newSrc) {
                 this.currentAd['image'] = newSrc;
+            },
+
+            /**
+             * Makes an asynchronous GET XMLHttpRequest for the given URL.
+             * Upon completion, makes a callback to the given function with at most one parameter.
+             * @param endpoint
+             * @param body
+             * @param callback The function to execute after the request is completed.
+             * @param par The argument to pass into the callback, or null to execute with no arguments.
+             */
+            getAndProcessPage(endpoint, body, callback, par) {
+                axios.post(`${this.API_ENDPOINT}${endpoint}`, body)
+                    .then(response => {
+                        const responseDoc = document.createElement('html');
+                        responseDoc.innerHTML = response.data;
+                        callback(responseDoc, par);
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
+            },
+
+            /**
+             * Processes and parses the response page for a single advertisement.
+             * Saves the advertisement images and body text.
+             * @param response The HTML response for a listing from the XMLHttpRequest.
+             * @param ad The advertisement this page belongs to.
+             */
+            setImageAndInfo(response, ad) {
+                const imageThumbs = response.getElementsByClassName('thumb');
+                for (let i = 0; i < imageThumbs.length; i++) {
+                    let link = imageThumbs.item(i).getAttribute('href');
+                    ad['imageList'].push(link);
+                }
+
+                let userbody = response.getElementsByClassName('userbody')[0];
+                let body = userbody.getElementsByTagName('section')[0];
+
+                ad['body'] = body.innerText.substring(48);
+
+                ad['loaded'] = true;
             }
         }
     }
@@ -206,7 +265,7 @@
         margin: 0;
     }
 
-    p  {
+    p {
         font-size: 17px;
         font-weight: 500;
         padding: 0;
@@ -243,9 +302,15 @@
         border-radius: 3px;
         border-width: 2px;
         border-color: white;
-        margin-top: 15px;
-        margin-bottom: 15px;
         padding-top: 0;
+        margin: 15px 0;
+        overflow: hidden;
+    }
+
+    .col {
+        margin-left: auto;
+        margin-right: auto;
+        width: fit-content;
     }
 
     .btn-container {
@@ -270,13 +335,13 @@
         padding: 10px;
         border-radius: 3px;
         border: 1px solid #cdcdcd;
-        background-color: var(--grey-bg);
+        /*background-color: var(--grey-bg);*/
     }
 
     .inner {
         padding: 10px 20px;
         border-radius: 3px;
-        background-color: rgba(140, 144, 182, 0.2);
+        /*background-color: rgba(140, 144, 182, 0.2);*/
     }
 
     .inner:hover {
@@ -294,7 +359,6 @@
     .results {
         margin: 0;
         padding: 0;
-        background-color: var(--grey-bg);
     }
 
     .img-container {

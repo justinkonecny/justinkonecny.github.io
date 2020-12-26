@@ -46,8 +46,8 @@
         --green-acnt-drk: #26a69a;
     }
 
-    html {
-        background-color: var(--grey-bg);
+    body {
+        margin: 0;
     }
 
     input {
@@ -79,7 +79,7 @@
         border-color: var(--green-acnt-drk);
     }
 
-    p {
+    p, label {
         color: var(--dark-grey);
     }
 
@@ -109,7 +109,7 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         text-align: center;
-        background-color: var(--grey-bg);
+        /*background-color: var(--grey-bg);*/
         color: var(--grey-bg);
         margin: 0;
         padding: 0;
